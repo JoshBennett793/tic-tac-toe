@@ -1,10 +1,12 @@
 :root {
 --font-family: "Roboto", "Lucida Sans Unicode", "Trebuchet MS", "Lucida Grande",
 "Lucida Sans", Arial, sans-serif;
---bg-color: #79a0a8;
+--bg-color: #93b5bc;
+--blue: #bddade;
+--grey-border: 1px solid #aaa9a9;
 --button-width: 150px;
 --border-radius: 10px;
---box-shadow: 0px 5px 20px -7px rgba(0,0,0,0.75);
+--box-shadow: 0px 8px 20px -7px rgba(0,0,0,0.75);
 --grid-sq-border: 2px solid black;
 --grid-sq-size: 88px;
 }
@@ -25,7 +27,7 @@ body {
 }
 
 .game-container {
-	border: 1px solid lightgrey;
+	border: var(--grey-border);
   border-radius: var(--border-radius);
 	margin: auto;
   margin-top: 25px;
@@ -33,6 +35,7 @@ body {
 	width: 55vw;
 	display: grid;
 	grid-template-rows: 2fr 5fr 1fr;
+	background: var(--blue);
 }
 
 .game-selection {
@@ -48,22 +51,21 @@ body {
 
 button {
 	border: none;
-	background: inherit;
+	background: white;
 	height: 35px;
 	font-size: 1em;
 	width: var(--button-width);
 	cursor: pointer;
+	border-radius: var(--border-radius);
 }
 
-button.x,
-button.o {
-	border-radius: var(--border-radius);
-	box-shadow: var(--box-shadow);
-	
+button.restart {
+	background: inherit;
 }
 
 button.selected {
 	border: 2px solid black;
+	box-shadow: var(--box-shadow);
 }
 
 button.not-selected {
@@ -71,23 +73,27 @@ button.not-selected {
 }
 
 button.x:hover,
-button.o:hover,
+button.o:hover {
+	box-shadow: var(--box-shadow);
+	transform: scale(1.1);
+}
+
 button.restart:hover {
 	transform: scale(1.1);
 }
 
-.game-board-container {
+.gameboard-container {
 	background: var(--bg-color);
 }
 
-.game-board-container,
+.gameboard-container,
 .restart-section {
 	display: flex;
 	justify-content: center;
 	align-items: center
 }
 
-.game-board {
+.gameboard {
 	/* border: 1px solid black; */
 	height: 100%;
 	width: 264px;
