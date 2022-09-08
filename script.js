@@ -1,15 +1,26 @@
-// const Game = (() => {})();
+const Game = (() => {
+	const winningCombos = [
+		[0,1,2],
+		[3,4,5],
+		[6,7,8],
+		[0,3,6],
+		[1,4,7],
+		[2,5,8],
+		[0,4,8],
+		[2,4,6],
+	];
+
+})();
 
 const displayController = (() => {
   "use strict";
-
   const selection = prompt("X?");
 
-  // let _boardArr = ["X", "X", null, null, "O", "O", null, null, "O"];
+  let _boardArr = [null, null, null, null, null, null, null, null, null];
 
-  const _gameboard = () => {
+  const _clickHandler = () => {
     const gameboardContainer = document.querySelector(".gameboard");
-    // use gridSquares to reference the sq dataset index and push to corresponding index in the boardArr
+    // didn't need this for array splice, will keep it here just in case
     const gridSquares = [...document.querySelectorAll(".sq")];
     gameboardContainer.addEventListener("click", (event) => {
       const square = event.target;
@@ -17,8 +28,10 @@ const displayController = (() => {
         if (square.textContent === "") {
           if (selection) {
             square.textContent = "X";
-          } else {
-            square.textContent = "O";
+							_boardArr.splice(square.dataset.index, 1, "X");
+						} else {
+							square.textContent = "O";
+							_boardArr.splice(square.dataset.index, 1, "O");
           }
         }
       }
@@ -26,13 +39,17 @@ const displayController = (() => {
   };
 
   return {
-    click: _gameboard,
+    click: _clickHandler,
   };
 })();
 
 displayController.click();
 
-const player = (name) => {
+const player = () => {
+	const player1 = document.querySelector("#player-1").value;
+	const player2 = document.querySelector("#player-2").value;
+
   const getName = () => name;
   return { getName };
 };
+
