@@ -104,6 +104,13 @@ button.restart:hover {
 	grid-template-columns: repeat(3, 1fr);
 }
 
+.sq {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 70px;
+}
+
 .grid-sq-1,
 .grid-sq-2,
 .grid-sq-3,
