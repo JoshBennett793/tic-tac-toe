@@ -67,7 +67,6 @@ input, label {
 	left: calc(50% - 175px);
 }
 
-.player-modal.name,
 .player-modal.selection {
 	visibility: hidden;
 }
