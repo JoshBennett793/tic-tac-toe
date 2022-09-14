@@ -21,38 +21,27 @@ const Gameboard = (() => {
 })();
 
 const displayController = (() => {
-  ("use strict");
-
   const _gameplayClickHandler = () => {
     const gameboardContainer = document.querySelector(".gameboard");
 
-    gameboardContainer.addEventListener("click", (event) => {
+    gameboardContainer.onclick = (event) => {
       const square = event.target;
       const squareIndex = square.dataset.index;
-      if (square.classList.contains("sq")) {
-        if (Game.checkForValidMove(squareIndex))
-          document.querySelector(
-            `.sq[data-index="${squareIndex}"]`
-          ).textContent = Game.Marker.current;
-					// implement logic that prevents user from playing in spots that are already taken
-        Game.switchMarkers();
-      }
-    });
+
+      if (!square.classList.contains("sq")) return;
+      if (!Game.checkForValidMove(squareIndex)) return;
+      document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
+        currentMarker;
+
+      Gameboard._boardArr.splice(square.dataset.index, 1, currentMarker);
+      console.log(Gameboard._boardArr);
+      Game.switchMarkers();
+    };
   };
 
-  // if (square.textContent === "") {
-  //   if (selection) {
-  //     square.textContent = "X";
-  //     _boardArr.splice(square.dataset.index, 1, "X");
-  //   } else {
-  //     square.textContent = "O";
-  //     _boardArr.splice(square.dataset.index, 1, "O");
-  //   }
-
-  const nameModal = document.querySelector(".player-modal.name");
-  const gameContainer = document.querySelector(".game-container");
-
   const playerNameModalClickHandler = () => {
+    const nameModal = document.querySelector(".player-modal.name");
+    const gameContainer = document.querySelector(".game-container");
     const playBtn = document.querySelector(".play");
 
     playBtn.onclick = () => {
@@ -74,31 +63,27 @@ const displayController = (() => {
 
   return {
     click: _gameplayClickHandler,
-    submit: playerNameModalClickHandler,
+    play: playerNameModalClickHandler,
   };
 })();
 
 const Game = (() => {
-
-	const Marker = () => {
-		let current = "X";
-		return { current };
-	}
+	currentMarker = "X";
 
   const checkForValidMove = (ArrIndex) => {
     return Gameboard._boardArr[ArrIndex] === null ? true : false;
   };
 
   const switchMarkers = () => {
-    if (Marker.current === "X") {
-      Marker.current = "O";
+    if (currentMarker === "X") {
+      currentMarker = "O";
     } else {
-      Marker.current = "X";
+      currentMarker = "X";
     }
   };
 
   displayController.click();
-  displayController.submit();
+  displayController.play();
 
-  return { Marker, checkForValidMove, switchMarkers };
+  return { checkForValidMove, switchMarkers };
 })();
