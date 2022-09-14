@@ -1,4 +1,11 @@
-const Game = (() => {
+const Player = (name) => {
+  const getName = () => name;
+  return { getName };
+};
+
+const Gameboard = (() => {
+  let _boardArr = [null, null, null, null, null, null, null, null, null];
+
   const winningCombos = [
     [0, 1, 2],
     [3, 4, 5],
@@ -9,61 +16,89 @@ const Game = (() => {
     [0, 4, 8],
     [2, 4, 6],
   ];
+
+  return { _boardArr };
 })();
 
 const displayController = (() => {
-  "use strict";
-  // const selection = prompt("X?");
-
-  let _boardArr = [null, null, null, null, null, null, null, null, null];
+  ("use strict");
 
   const _gameplayClickHandler = () => {
     const gameboardContainer = document.querySelector(".gameboard");
-    // didn't need this for array splice, will keep it here just in case
-    const gridSquares = [...document.querySelectorAll(".sq")];
+
     gameboardContainer.addEventListener("click", (event) => {
       const square = event.target;
+      const squareIndex = square.dataset.index;
       if (square.classList.contains("sq")) {
-        if (square.textContent === "") {
-          if (selection) {
-            square.textContent = "X";
-            _boardArr.splice(square.dataset.index, 1, "X");
-          } else {
-            square.textContent = "O";
-            _boardArr.splice(square.dataset.index, 1, "O");
-          }
-        }
+        if (Game.checkForValidMove(squareIndex))
+          document.querySelector(
+            `.sq[data-index="${squareIndex}"]`
+          ).textContent = Game.Marker.current;
+					// implement logic that prevents user from playing in spots that are already taken
+        Game.switchMarkers();
       }
     });
   };
 
-  const _playerNameClickHandler = () => {
-    const submitBtn = document.querySelector(".submit");
-    const nameModal = document.querySelector(".player-modal.name");
-		const selectionModal = document.querySelector(".player-modal.selection");
-    const player1DOMElements = document.querySelectorAll(".player-1-name");
-    const player2DOMElement = document.querySelector(".player-2-name");
-		
-    submitBtn.addEventListener("click", () => {
-			const player1Name = document.querySelector("#player-1").value;
-			const player2Name = document.querySelector("#player-2").value;
-      player1DOMElements.forEach((el) => {
-        el.textContent = "";
-        el.textContent = player1Name;
-      });
-      player2DOMElement.textContent = "";
-      player2DOMElement.textContent = player2Name;
+  // if (square.textContent === "") {
+  //   if (selection) {
+  //     square.textContent = "X";
+  //     _boardArr.splice(square.dataset.index, 1, "X");
+  //   } else {
+  //     square.textContent = "O";
+  //     _boardArr.splice(square.dataset.index, 1, "O");
+  //   }
+
+  const nameModal = document.querySelector(".player-modal.name");
+  const gameContainer = document.querySelector(".game-container");
+
+  const playerNameModalClickHandler = () => {
+    const playBtn = document.querySelector(".play");
+
+    playBtn.onclick = () => {
+      const player1Name = document.querySelector("#player-1").value;
+      const player2Name = document.querySelector("#player-2").value;
+      const playerX = document.querySelector(".player-x");
+      const playerO = document.querySelector(".player-o");
+
+      const player1 = Player(player1Name);
+      const player2 = Player(player2Name);
+
+      playerX.textContent = player1.getName();
+      playerO.textContent = player2.getName();
 
       nameModal.style.visibility = "hidden";
-			selectionModal.style.visibility = "visible";
-    });
+      gameContainer.style.visibility = "visible";
+    };
   };
 
   return {
     click: _gameplayClickHandler,
-    names: _playerNameClickHandler,
+    submit: playerNameModalClickHandler,
   };
 })();
 
-displayController.click();
-displayController.names();
+const Game = (() => {
+
+	const Marker = () => {
+		let current = "X";
+		return { current };
+	}
+
+  const checkForValidMove = (ArrIndex) => {
+    return Gameboard._boardArr[ArrIndex] === null ? true : false;
+  };
+
+  const switchMarkers = () => {
+    if (Marker.current === "X") {
+      Marker.current = "O";
+    } else {
+      Marker.current = "X";
+    }
+  };
+
+  displayController.click();
+  displayController.submit();
+
+  return { Marker, checkForValidMove, switchMarkers };
+})();
