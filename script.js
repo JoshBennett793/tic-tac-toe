@@ -4,9 +4,9 @@ const Player = (name) => {
 };
 
 const Gameboard = (() => {
-  let _boardArr = [null, null, null, null, null, null, null, null, null];
+  let boardArr = [null, null, null, null, null, null, null, null, null];
 
-  const winningCombos = [
+  const winConditions = [
     [0, 1, 2],
     [3, 4, 5],
     [6, 7, 8],
@@ -17,11 +17,11 @@ const Gameboard = (() => {
     [2, 4, 6],
   ];
 
-  return { _boardArr };
+  return { boardArr, winConditions };
 })();
 
 const displayController = (() => {
-  const _gameplayClickHandler = () => {
+  const gameplayClickHandler = () => {
     const gameboardContainer = document.querySelector(".gameboard");
 
     gameboardContainer.onclick = (event) => {
@@ -30,48 +30,48 @@ const displayController = (() => {
 
       if (!square.classList.contains("sq")) return;
       if (!Game.checkForValidMove(squareIndex)) return;
+
       document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
         currentMarker;
-
-      Gameboard._boardArr.splice(square.dataset.index, 1, currentMarker);
-      console.log(Gameboard._boardArr);
-      Game.switchMarkers();
+      Gameboard.boardArr.splice(square.dataset.index, 1, currentMarker);
+      Game.switchMarkers(); // this should probably go in the function that checks for a win or not
     };
   };
 
-  const playerNameModalClickHandler = () => {
+  const _playEvent = () => {
     const nameModal = document.querySelector(".player-modal.name");
     const gameContainer = document.querySelector(".game-container");
+    const player1Name = document.querySelector("#player-1").value;
+    const player2Name = document.querySelector("#player-2").value;
+    const playerX = document.querySelector(".player-x");
+    const playerO = document.querySelector(".player-o");
+
+    const player1 = Player(player1Name);
+    const player2 = Player(player2Name);
+
+    playerX.textContent = player1.getName();
+    playerO.textContent = player2.getName();
+
+    nameModal.style.visibility = "hidden";
+    gameContainer.style.visibility = "visible";
+  };
+
+  const attachPlayEvent = () => {
     const playBtn = document.querySelector(".play");
-
-    playBtn.onclick = () => {
-      const player1Name = document.querySelector("#player-1").value;
-      const player2Name = document.querySelector("#player-2").value;
-      const playerX = document.querySelector(".player-x");
-      const playerO = document.querySelector(".player-o");
-
-      const player1 = Player(player1Name);
-      const player2 = Player(player2Name);
-
-      playerX.textContent = player1.getName();
-      playerO.textContent = player2.getName();
-
-      nameModal.style.visibility = "hidden";
-      gameContainer.style.visibility = "visible";
-    };
+    playBtn.onclick = _playEvent;
   };
 
   return {
-    click: _gameplayClickHandler,
-    play: playerNameModalClickHandler,
+    click: gameplayClickHandler,
+    play: attachPlayEvent,
   };
 })();
 
 const Game = (() => {
-	currentMarker = "X";
+  currentMarker = "X";
 
   const checkForValidMove = (ArrIndex) => {
-    return Gameboard._boardArr[ArrIndex] === null ? true : false;
+    return Gameboard.boardArr[ArrIndex] === null ? true : false;
   };
 
   const switchMarkers = () => {
@@ -82,8 +82,15 @@ const Game = (() => {
     }
   };
 
+  const checkForWinner = () => {
+    return Gameboard.winConditions.find((condition) =>
+      condition.every((index) => Gameboard.boardArr[index] === currentMarker)
+    );
+  };
+
   displayController.click();
   displayController.play();
 
-  return { checkForValidMove, switchMarkers };
+  return { checkForValidMove, switchMarkers, checkForWinner };
 })();
+// Removed underscore from boardArr. Will not be focusing on private variables
