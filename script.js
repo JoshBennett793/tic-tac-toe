@@ -21,24 +21,49 @@ const Gameboard = (() => {
 })();
 
 const displayController = (() => {
-  const gameplayClickHandler = () => {
-    const gameboardContainer = document.querySelector(".gameboard");
+  const _Gameplay = (event) => {
+    const square = event.target;
+    const squareIndex = square.dataset.index;
 
-    gameboardContainer.onclick = (event) => {
-      const square = event.target;
-      const squareIndex = square.dataset.index;
+    if (!square.classList.contains("sq")) return;
+    if (!Game.checkForValidMove(squareIndex)) return;
 
-      if (!square.classList.contains("sq")) return;
-      if (!Game.checkForValidMove(squareIndex)) return;
-
-      document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
-        currentMarker;
-      Gameboard.boardArr.splice(square.dataset.index, 1, currentMarker);
-      Game.switchMarkers(); // this should probably go in the function that checks for a win or not
-    };
+    document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
+      currentMarker;
+    Gameboard.boardArr.splice(square.dataset.index, 1, currentMarker);
+    Game.checkForWinner();
+    Game.checkForTie();
+    Game.switchMarkers();
   };
 
-  const _playEvent = () => {
+  const gameboardContainer = document.querySelector(".gameboard");
+
+  const attachGameplay = () => {
+    gameboardContainer.addEventListener("click", _Gameplay);
+  };
+
+  const X = document.querySelector(".x");
+  const O = document.querySelector(".o");
+
+  const displayWinner = () => {
+    if (currentMarker === "X") {
+      X.textContent = "Winner";
+      O.textContent = "Loser";
+    } else {
+      O.textContent = "Winner";
+      X.textContent = "Loser";
+    }
+    gameboardContainer.removeEventListener("click", _Gameplay);
+  };
+
+  const displayTie = () => {
+    X.textContent = "Tie";
+    O.textContent = "Game";
+    gameboardContainer.removeEventListener("click", _Gameplay);
+  };
+
+  const _playEvent = (event) => {
+    event.preventDefault(); // prevents refreshing upon form submission
     const nameModal = document.querySelector(".player-modal.name");
     const gameContainer = document.querySelector(".game-container");
     const player1Name = document.querySelector("#player-1").value;
@@ -57,13 +82,15 @@ const displayController = (() => {
   };
 
   const attachPlayEvent = () => {
-    const playBtn = document.querySelector(".play");
-    playBtn.onclick = _playEvent;
+    const nameForm = document.querySelector(".name-form");
+    nameForm.addEventListener("submit", _playEvent);
   };
 
   return {
-    click: gameplayClickHandler,
+    click: attachGameplay,
     play: attachPlayEvent,
+    displayWinner: displayWinner,
+    displayTie: displayTie,
   };
 })();
 
@@ -71,7 +98,7 @@ const Game = (() => {
   currentMarker = "X";
 
   const checkForValidMove = (ArrIndex) => {
-    return Gameboard.boardArr[ArrIndex] === null ? true : false;
+    return Gameboard.boardArr[ArrIndex] === null;
   };
 
   const switchMarkers = () => {
@@ -83,14 +110,27 @@ const Game = (() => {
   };
 
   const checkForWinner = () => {
-    return Gameboard.winConditions.find((condition) =>
-      condition.every((index) => Gameboard.boardArr[index] === currentMarker)
-    );
+    /* returns true if find() method returns an array from winConditions in which 
+		every index of that array matches with the same index of the boardArr that contain
+		 the same marker, if no matches found, find() method returns undefined, which returns false
+		*/
+    if (
+      Gameboard.winConditions.find((condition) =>
+        condition.every((index) => Gameboard.boardArr[index] === currentMarker)
+      ) != undefined
+    ) {
+      displayController.displayWinner();
+    }
+  };
+
+  const checkForTie = () => {
+    if (!Gameboard.boardArr.includes(null)) {
+      displayController.displayTie();
+    }
   };
 
   displayController.click();
   displayController.play();
 
-  return { checkForValidMove, switchMarkers, checkForWinner };
+  return { checkForValidMove, switchMarkers, checkForWinner, checkForTie };
 })();
-// Removed underscore from boardArr. Will not be focusing on private variables
