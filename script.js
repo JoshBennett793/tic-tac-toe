@@ -62,6 +62,17 @@ const displayController = (() => {
     gameboardContainer.removeEventListener("click", _Gameplay);
   };
 
+  const resetGame = () => {
+    const gridSquares = document.querySelectorAll(".sq");
+    Gameboard.boardArr = [null, null, null, null, null, null, null, null, null];
+    X.textContent = "X";
+    O.textContent = "O";
+    gridSquares.forEach((square) => {
+      square.textContent = "";
+      gameboardContainer.addEventListener("click", _Gameplay);
+    });
+  };
+
   const _playEvent = (event) => {
     event.preventDefault(); // prevents refreshing upon form submission
     const nameModal = document.querySelector(".player-modal.name");
@@ -84,6 +95,7 @@ const displayController = (() => {
   const attachPlayEvent = () => {
     const nameForm = document.querySelector(".name-form");
     nameForm.addEventListener("submit", _playEvent);
+    nameForm.reset();
   };
 
   return {
@@ -91,6 +103,7 @@ const displayController = (() => {
     play: attachPlayEvent,
     displayWinner: displayWinner,
     displayTie: displayTie,
+    reset: resetGame,
   };
 })();
 
@@ -110,9 +123,10 @@ const Game = (() => {
   };
 
   const checkForWinner = () => {
-    /* returns true if find() method returns an array from winConditions in which 
-		every index of that array matches with the same index of the boardArr that contain
-		 the same marker, if no matches found, find() method returns undefined, which returns false
+    /* returns true if find() method returns an array from 
+		winConditions in which every index of that array matches 
+		with the same index of the boardArr that contain the same marker, 
+		if no matches found, find() method returns undefined, which returns false
 		*/
     if (
       Gameboard.winConditions.find((condition) =>
@@ -129,8 +143,18 @@ const Game = (() => {
     }
   };
 
+  const restartGame = () => {
+    displayController.reset();
+  };
+
+  const attachRestartHandler = () => {
+    const restartBtn = document.querySelector(".restart");
+    restartBtn.addEventListener("click", restartGame);
+  };
+
   displayController.click();
   displayController.play();
+  attachRestartHandler();
 
   return { checkForValidMove, switchMarkers, checkForWinner, checkForTie };
 })();
