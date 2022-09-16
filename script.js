@@ -30,8 +30,8 @@ const TicTacToe = (function () {
       if (!Game.checkForValidMove(squareIndex)) return;
 
       document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
-        currentMarker;
-      Gameboard.boardArr.splice(square.dataset.index, 1, currentMarker);
+        Game.Marker.current;
+      Gameboard.boardArr.splice(square.dataset.index, 1, Game.Marker.current);
       Game.checkForWinner();
       Game.checkForTie();
       Game.switchMarkers();
@@ -47,7 +47,7 @@ const TicTacToe = (function () {
     const O = document.querySelector(".o");
 
     const displayWinner = () => {
-      if (currentMarker === "X") {
+      if (Game.Marker.current === "X") {
         X.textContent = "Winner";
         O.textContent = "Loser";
       } else {
@@ -65,17 +65,10 @@ const TicTacToe = (function () {
 
     const resetGame = () => {
       const gridSquares = document.querySelectorAll(".sq");
-      Gameboard.boardArr = [
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-        null,
-      ];
+      for (let i = 0; i < Gameboard.boardArr.length; i++) {
+        Gameboard.boardArr[i] = null;
+      }
+      Game.Marker.current = "X";
       X.textContent = "X";
       O.textContent = "O";
       gridSquares.forEach((square) => {
@@ -119,17 +112,21 @@ const TicTacToe = (function () {
   })();
 
   const Game = (() => {
-    currentMarker = "X";
+
+		const Marker = (() => {
+			let current = "X";
+			return { current };
+		})();
 
     const checkForValidMove = (ArrIndex) => {
       return Gameboard.boardArr[ArrIndex] === null;
     };
 
     const switchMarkers = () => {
-      if (currentMarker === "X") {
-        currentMarker = "O";
+      if (Marker.current === "X") {
+        Marker.current = "O";
       } else {
-        currentMarker = "X";
+        Marker.current = "X";
       }
     };
 
@@ -142,7 +139,7 @@ const TicTacToe = (function () {
       if (
         Gameboard.winConditions.find((condition) =>
           condition.every(
-            (index) => Gameboard.boardArr[index] === currentMarker
+            (index) => Gameboard.boardArr[index] === Marker.current
           )
         ) != undefined
       ) {
@@ -169,6 +166,6 @@ const TicTacToe = (function () {
     displayController.play();
     attachRestartHandler();
 
-    return { checkForValidMove, switchMarkers, checkForWinner, checkForTie };
+    return { checkForValidMove, switchMarkers, checkForWinner, checkForTie, Marker };
   })();
 })();
