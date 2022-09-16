@@ -7,18 +7,13 @@ const TicTacToe = (function () {
   const Gameboard = (() => {
     let boardArr = [null, null, null, null, null, null, null, null, null];
 
-    const winConditions = [
-      [0, 1, 2],
-      [3, 4, 5],
-      [6, 7, 8],
-      [0, 3, 6],
-      [1, 4, 7],
-      [2, 5, 8],
-      [0, 4, 8],
-      [2, 4, 6],
-    ];
+		const resetArr = () => {
+			for (let i = 0; i < boardArr.length; i++) {
+        boardArr[i] = null;
+      }
+		}
 
-    return { boardArr, winConditions };
+    return { boardArr, resetArr };
   })();
 
   const displayController = (() => {
@@ -65,15 +60,13 @@ const TicTacToe = (function () {
 
     const resetGame = () => {
       const gridSquares = document.querySelectorAll(".sq");
-      for (let i = 0; i < Gameboard.boardArr.length; i++) {
-        Gameboard.boardArr[i] = null;
-      }
+      Gameboard.resetArr();
       Game.Marker.current = "X";
       X.textContent = "X";
       O.textContent = "O";
+      gameboardContainer.addEventListener("click", _Gameplay);
       gridSquares.forEach((square) => {
         square.textContent = "";
-        gameboardContainer.addEventListener("click", _Gameplay);
       });
     };
 
@@ -107,16 +100,15 @@ const TicTacToe = (function () {
       play: attachPlayEvent,
       displayWinner: displayWinner,
       displayTie: displayTie,
-      reset: resetGame,
+      resetGame: resetGame,
     };
   })();
 
   const Game = (() => {
-
-		const Marker = (() => {
-			let current = "X";
-			return { current };
-		})();
+    const Marker = (() => {
+      let current = "X";
+      return { current };
+    })();
 
     const checkForValidMove = (ArrIndex) => {
       return Gameboard.boardArr[ArrIndex] === null;
@@ -131,13 +123,24 @@ const TicTacToe = (function () {
     };
 
     const checkForWinner = () => {
+			const winConditions = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6],
+      ];
+
       /* returns true if find() method returns an array from 
 		winConditions in which every index of that array matches 
 		with the same index of the boardArr that contain the same marker, 
 		if no matches found, find() method returns undefined, which returns false
 		*/
       if (
-        Gameboard.winConditions.find((condition) =>
+        winConditions.find((condition) =>
           condition.every(
             (index) => Gameboard.boardArr[index] === Marker.current
           )
@@ -154,7 +157,7 @@ const TicTacToe = (function () {
     };
 
     const restartGame = () => {
-      displayController.reset();
+      displayController.resetGame();
     };
 
     const attachRestartHandler = () => {
@@ -166,6 +169,12 @@ const TicTacToe = (function () {
     displayController.play();
     attachRestartHandler();
 
-    return { checkForValidMove, switchMarkers, checkForWinner, checkForTie, Marker };
+    return {
+      checkForValidMove,
+      switchMarkers,
+      checkForWinner,
+      checkForTie,
+      Marker,
+    };
   })();
 })();
