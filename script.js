@@ -5,13 +5,16 @@ const TicTacToe = (function () {
   };
 
   const Gameboard = (() => {
-    let boardArr = [null, null, null, null, null, null, null, null, null];
+    let boardArr = new Array(9);
+    for (let i = 0; i < boardArr.length; i++) {
+      boardArr[i] = null;
+    }
 
-		const resetArr = () => {
-			for (let i = 0; i < boardArr.length; i++) {
+    const resetArr = () => {
+      for (let i = 0; i < boardArr.length; i++) {
         boardArr[i] = null;
       }
-		}
+    };
 
     return { boardArr, resetArr };
   })();
@@ -20,15 +23,21 @@ const TicTacToe = (function () {
     const _Gameplay = (event) => {
       const square = event.target;
       const squareIndex = square.dataset.index;
-
+			
       if (!square.classList.contains("sq")) return;
       if (!Game.checkForValidMove(squareIndex)) return;
-
+			
       document.querySelector(`.sq[data-index="${squareIndex}"]`).textContent =
-        Game.Marker.current;
+			Game.Marker.current;
       Gameboard.boardArr.splice(square.dataset.index, 1, Game.Marker.current);
-      Game.checkForWinner();
-      Game.checkForTie();
+      const gameStatus = Game.checkGameState(Game.Marker.current);
+      if (gameStatus) {
+        if (gameStatus.status === "win") {
+          displayWinner();
+        } else {
+          displayTie();
+        }
+      }
       Game.switchMarkers();
     };
 
@@ -60,7 +69,6 @@ const TicTacToe = (function () {
 
     const resetGame = () => {
       const gridSquares = document.querySelectorAll(".sq");
-      Gameboard.resetArr();
       Game.Marker.current = "X";
       X.textContent = "X";
       O.textContent = "O";
@@ -70,7 +78,7 @@ const TicTacToe = (function () {
       });
     };
 
-    const _playEvent = (event) => {
+    const _playBtnEvent = (event) => {
       event.preventDefault(); // prevents refreshing upon form submission
       const nameModal = document.querySelector(".player-modal.name");
       const gameContainer = document.querySelector(".game-container");
@@ -89,15 +97,15 @@ const TicTacToe = (function () {
       gameContainer.style.visibility = "visible";
     };
 
-    const attachPlayEvent = () => {
+    const attachPlayBtnEvent = () => {
       const nameForm = document.querySelector(".name-form");
-      nameForm.addEventListener("submit", _playEvent);
+      nameForm.addEventListener("submit", _playBtnEvent);
       nameForm.reset();
     };
 
     return {
       click: attachGameplay,
-      play: attachPlayEvent,
+      play: attachPlayBtnEvent,
       displayWinner: displayWinner,
       displayTie: displayTie,
       resetGame: resetGame,
@@ -115,48 +123,41 @@ const TicTacToe = (function () {
     };
 
     const switchMarkers = () => {
-      if (Marker.current === "X") {
-        Marker.current = "O";
-      } else {
-        Marker.current = "X";
+      Marker.current = Marker.current === "X" ? "O" : "X";
+    };
+
+    const checkGameState = (marker) => {
+      if (checkForWinner(marker)) {
+        return { status: "win" };
+      } else if (checkForTie()) {
+        return { status: "tie" };
       }
     };
 
-    const checkForWinner = () => {
-			const winConditions = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6],
-      ];
-
+    const winConditions = [
+      [0, 1, 2],
+      [3, 4, 5],
+      [6, 7, 8],
+      [0, 3, 6],
+      [1, 4, 7],
+      [2, 5, 8],
+      [0, 4, 8],
+      [2, 4, 6],
+    ];
+    const checkForWinner = (marker, board = Gameboard.boardArr) =>
       /* returns true if find() method returns an array from 
 		winConditions in which every index of that array matches 
 		with the same index of the boardArr that contain the same marker, 
 		if no matches found, find() method returns undefined, which returns false
 		*/
-      if (
-        winConditions.find((condition) =>
-          condition.every(
-            (index) => Gameboard.boardArr[index] === Marker.current
-          )
-        ) != undefined
-      ) {
-        displayController.displayWinner();
-      }
-    };
+      winConditions.find((condition) =>
+        condition.every((index) => board[index] === marker)
+      );
 
-    const checkForTie = () => {
-      if (!Gameboard.boardArr.includes(null)) {
-        displayController.displayTie();
-      }
-    };
+    const checkForTie = () => !Gameboard.boardArr.includes(null);
 
     const restartGame = () => {
+      Gameboard.resetArr();
       displayController.resetGame();
     };
 
@@ -172,6 +173,7 @@ const TicTacToe = (function () {
     return {
       checkForValidMove,
       switchMarkers,
+      checkGameState,
       checkForWinner,
       checkForTie,
       Marker,
